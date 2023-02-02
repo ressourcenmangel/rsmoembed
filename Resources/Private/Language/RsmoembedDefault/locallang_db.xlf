@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en"
+		  datatype="plaintext"
+		  original="EXT:rsmoembed/Resources/Private/Language/RsmoembedDefault/locallang_db.xlf"
+		  date="2023-01-13T12:22:26Z"
+		  product-name="rsmoembed">
+		<header/>
+		<body>
+			<trans-unit id="title">
+				<source>Oembed Element</source>
+			</trans-unit>
+			<trans-unit id="description">
+				<source>Content Element to embed external Service.</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

@@ -1,0 +1,19 @@
+.tx_rsmoembed_default__item {
+  display: block;
+  position: relative; }
+  .tx_rsmoembed_default__item__link {
+    display: block;
+    position: relative; }
+  .tx_rsmoembed_default__item__image {
+    display: block;
+    width: 100%;
+    height: auto; }
+
+[data-rsmoembed-uid] {
+  display: block;
+  position: relative; }
+
+[data-rsmoembed-uid] * {
+  pointer-events: none; }
+
+/*# sourceMappingURL=styles.css.map */

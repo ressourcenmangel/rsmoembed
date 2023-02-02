@@ -1,0 +1,27 @@
+.tx_rsmoembed_default {
+    &__item {
+        display: block;
+        position: relative;
+        &__link{
+            display: block;
+            position: relative;
+        }
+        &__image{
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+        //iframe {
+        //    display: block;
+        //    width: 100%;
+        //    min-height: 100%;
+        //}
+    }
+}
+[data-rsmoembed-uid] {
+    display: block;
+    position: relative;
+}
+[data-rsmoembed-uid] * {
+    pointer-events: none;
+}

@@ -1,0 +1,33 @@
+<html data-namespace-typo3-fluid="true"
+	  xmlns:rsm="http://typo3.org/ns/Ressourcenmangel/Rsmoembed/ViewHelpers"
+	  xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers">
+<f:layout name="Default"/>
+<f:section name="Main">
+	<f:asset.script identifier="rsmoembed_default"
+					src="EXT:rsmoembed/Resources/Public/JavaScript/main.js"
+					defer="1"
+					priority="0"/>
+	<f:asset.css identifier="rsmoembed_default" href="EXT:rsmoembed/Resources/Public/Css/styles.css" priority="1"/>
+
+
+	<f:variable name="oembedData">{rsm:jsonToObject(value: data.tx_rsmoembed_data)}</f:variable>
+
+	<f:if condition="{images}">
+		<f:then>
+			<div class="tx_rsmoembed_default__item">
+				<a href="javascript:void(0);"
+					class="tx_rsmoembed_default__item__link"
+				   data-rsmoembed-uid="{f:if(condition:data._LOCALIZED_UID,then:data._LOCALIZED_UID,else:data.uid)}">
+					<f:image image="{images.0}"
+							 maxWidth="1920"
+							 class="tx_rsmoembed_default__item__image"
+					/>
+				</a>
+			</div>
+		</f:then>
+	</f:if>
+</f:section>
+</html>
+
+
+

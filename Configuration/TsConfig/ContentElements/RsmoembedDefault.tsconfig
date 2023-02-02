@@ -1,0 +1,23 @@
+mod.wizards.newContentElement.wizardItems.common {
+    elements.rsmoembed_default {
+        iconIdentifier = rsmoembed_default
+        title = LLL:EXT:rsmoembed/Resources/Private/Language/RsmoembedDefault/locallang_db.xlf:title
+        description = LLL:EXT:rsmoembed/Resources/Private/Language/RsmoembedDefault/locallang_db.xlf:description
+        tt_content_defValues {
+            CType = rsmoembed_default
+        }
+
+        #saveAndClose = true
+    }
+
+    show := addToList(rsmoembed_default)
+}
+
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=
+# PREVIEW
+# =-=-=-=-=-=-=-=-=-=-=-=-=-=
+#mod.web_layout.tt_content {
+#    preview {
+#        rsmoembed_default = EXT:rsmoembed/Resources/Private/Backend/Templates/RsmoembedDefault.html
+#    }
+#}

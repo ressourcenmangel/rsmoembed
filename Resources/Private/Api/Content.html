@@ -1,0 +1,25 @@
+<html data-namespace-typo3-fluid="true"
+	  xmlns:rsm="http://typo3.org/ns/Ressourcenmangel/Rsmoembed/ViewHelpers"
+	  xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers">
+	<f:variable name="oembedData">{rsm:jsonToObject(value: data.tx_rsmoembed_data)}</f:variable>
+	<f:comment>
+		<p>{oembedData.info_provider_name}</p>
+	</f:comment>
+	<f:if condition="{oembedData.info_code_html}">
+		<f:then>
+			{oembedData.info_code_html->f:format.raw()}
+		</f:then>
+		<f:else>
+			<f:switch expression="{oembedData.info_provider_name}">
+				<f:case value="Instagram">
+					<iframe src="{oembedData.info_url}embed"
+							width="500" height="500" frameborder="0" allowfullscreen>
+					</iframe>
+				</f:case>
+				<f:defaultCase>
+					<pre>{oembedData.info_provider_name}</pre>
+				</f:defaultCase>
+			</f:switch>
+		</f:else>
+	</f:if>
+</html>

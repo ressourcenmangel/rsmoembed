@@ -1,0 +1,10 @@
+plugin.tx_rsmoembed {
+    view {
+        # cat=rsmoembed templates/view/default; type=string; label=Path to templates root (FE)
+        templateRootPath =
+        # cat=rsmoembed templates/view/default; type=string; label=Path to templates partials (FE)
+        partialRootPath =
+        # cat=rsmoembed templates/view/default; type=string; label=Path to templates layouts (FE)
+        layoutRootPath =
+    }
+}

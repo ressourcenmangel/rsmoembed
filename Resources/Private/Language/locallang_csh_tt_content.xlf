@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en" datatype="plaintext"
+		  original="EXT:rsmoembed/Resources/Private/Language/locallang_csh_tt_content.xlf"
+		  date="2023-01-13T12:22:26Z"
+		  product-name="rsmoembed">
+		<header/>
+		<body>
+			<trans-unit id="tx_rsmoembed_url.description" resname="tx_rsmoembed_url.description">
+				<source>Url to embed</source>
+			</trans-unit>
+			<trans-unit id="tx_rsmoembed_data.description" resname="tx_rsmoembed_data.description">
+				<source>Fetched provider data</source>
+			</trans-unit>
+			<trans-unit id="tx_rsmoembed_image_download.description" resname="tx_rsmoembed_image_download.description">
+				<source>Download provider image as preview?</source>
+			</trans-unit>
+			<trans-unit id="tx_rsmoembed_image.description" resname="tx_rsmoembed_image.description">
+				<source>Preview Image</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

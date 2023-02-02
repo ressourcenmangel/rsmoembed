@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en"
+		  datatype="plaintext"
+		  original="EXT:rsmoembed/Resources/Private/Language/locallang_db.xlf"
+		  date="2023-01-13T12:22:26Z"
+		  product-name="rsmoembed">
+		<header/>
+		<body>
+			<trans-unit id="tt_content.tx_rsmoembed_url" resname="tt_content.tx_rsmoembed_url">
+				<source>URL to grab Infos</source>
+			</trans-unit>
+			<trans-unit id="tt_content.tx_rsmoembed_data" resname="tt_content.tx_rsmoembed_data">
+				<source>Grabbed Data</source>
+			</trans-unit>
+			<trans-unit id="tt_content.tx_rsmoembed_image_download" resname="tt_content.tx_rsmoembed_image_download">
+				<source>Generate Preview Image automatically? (please remove existing preview manually)</source>
+			</trans-unit>
+			<trans-unit id="tt_content.tx_rsmoembed_image_download.0" resname="tt_content.tx_rsmoembed_image_download.0">
+				<source>Yes, try to download the external image and I do not infringe copyrights.</source>
+			</trans-unit>
+			<trans-unit id="tt_content.tx_rsmoembed_image" resname="tt_content.tx_rsmoembed_image">
+				<source>Preview Image</source>
+			</trans-unit>
+
+
+
+		</body>
+	</file>
+</xliff>

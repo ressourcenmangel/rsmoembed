@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<xliff version="1.0">
+	<file source-language="en"
+		  datatype="plaintext"
+		  original="EXT:rsmoembed/Resources/Private/Language/locallang.xlf"
+		  date="2023-01-13T12:22:26Z"
+		  product-name="rsmoembed">
+		<header/>
+		<body>
+			<trans-unit id="tt_content.tx_rsmoembed_url" resname="tt_content.tx_rsmoembed_url">
+				<source>Url</source>
+			</trans-unit>
+			<trans-unit id="tt_content.tx_rsmoembed_data" resname="tt_content.tx_rsmoembed_data">
+				<source>Data</source>
+			</trans-unit>
+			<trans-unit id="tt_content.tx_rsmoembed_image_download" resname="tt_content.tx_rsmoembed_image_download">
+				<source>Image Download</source>
+			</trans-unit>
+			<trans-unit id="tt_content.tx_rsmoembed_image" resname="tt_content.tx_rsmoembed_image">
+				<source>Image</source>
+			</trans-unit>
+		</body>
+	</file>
+</xliff>

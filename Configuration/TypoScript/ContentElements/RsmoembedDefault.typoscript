@@ -1,0 +1,25 @@
+tt_content.rsmoembed_default =< lib.contentElement
+tt_content.rsmoembed_default {
+
+    templateName = RsmoembedDefault
+    templateRootPaths {
+        16753462650 = EXT:rsmoembed/Resources/Private/Templates/
+        16753462651 = {$plugin.tx_rsmoembed.view.templateRootPath}
+    }
+    partialRootPaths {
+        16753462650 = EXT:rsmoembed/Resources/Private/Partials/
+        16753462651 = {$plugin.tx_rsmoembed.view.partialRootPath}
+    }
+    layoutRootPaths {
+        16753462650 = EXT:rsmoembed/Resources/Private/Layouts/
+        16753462651 = {$plugin.tx_rsmoembed.view.layoutRootPath}
+    }
+    dataProcessing {
+        10 = TYPO3\CMS\Frontend\DataProcessing\FilesProcessor
+        10 {
+            references.table = tt_content
+            references.fieldName = tx_rsmoembed_image
+            as = images
+        }
+    }
+}
