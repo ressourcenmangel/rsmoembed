@@ -2,9 +2,8 @@
 defined('TYPO3') || die();
 
 call_user_func(function () {
-    $tmp_rsmoembed_extkey = 'rsmoembed';
-    $tmp_rsmoembed_lang_prefix = 'LLL:EXT:' . $tmp_rsmoembed_extkey . '/Resources/Private/Language/locallang_db.xlf:';
-    $tmp_rsmoembed_columns = [
+    $tmpRsmOembedExtkey = 'rsmoembed';
+    $tmpRsmOembedColumns = [
 
         'tx_rsmoembed_url' => [
             'exclude' => true,
@@ -20,12 +19,12 @@ call_user_func(function () {
             'exclude' => true,
             'label' => 'LLL:EXT:rsmoembed/Resources/Private/Language/locallang_db.xlf:tt_content.tx_rsmoembed_data',
             'config' => [
-                'type' => 'text',
-                'cols' => 100,
-                'rows' => 5,
-                'eval' => 'trim',
-                'default' => ''
-            ]
+                'type' => 'user',
+                'renderType' => 'RsmOembedData',
+                'parameters' => [
+                    'whatever' => true,
+                ],
+            ],
         ],
         'tx_rsmoembed_image_download' => [
             'exclude' => true,
@@ -80,36 +79,37 @@ call_user_func(function () {
 
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTCAcolumns(
         'tt_content',
-        $tmp_rsmoembed_columns
+        $tmpRsmOembedColumns
     );
 
 
 //////////////////////////////////////////////////////////////
 // CE Oembed Default Default
 //////////////////////////////////////////////////////////////
-    $tmp_rsmoembed_ce = $tmp_rsmoembed_extkey . '_default';
+    $tmpRsmOembedCe = $tmpRsmOembedExtkey . '_default';
 
     \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTcaSelectItem(
         'tt_content',
         'CType',
         [
-            'LLL:EXT:' . $tmp_rsmoembed_extkey . '/Resources/Private/Language/RsmoembedDefault/locallang_db.xlf:title',
-            $tmp_rsmoembed_ce,
-            $tmp_rsmoembed_ce,
+            'LLL:EXT:' . $tmpRsmOembedExtkey . '/Resources/Private/Language/RsmoembedDefault/locallang_db.xlf:title',
+            $tmpRsmOembedCe,
+            $tmpRsmOembedCe,
         ],
         'text',
         'after'
     );
-//tx_rsmoembed_data,
-    $GLOBALS['TCA']['tt_content']['types'][$tmp_rsmoembed_ce] = [
+//
+    $GLOBALS['TCA']['tt_content']['types'][$tmpRsmOembedCe] = [
         'showitem' => '
     --palette--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:palette.general;general,
     --palette--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:palette.headers;headers,
         bodytext,
+    --div--;LLL:EXT:' . $tmpRsmOembedExtkey . '/Resources/Private/Language/RsmoembedDefault/locallang_db.xlf:tabs.oembed,
         tx_rsmoembed_url,
-
         tx_rsmoembed_image_download,
         tx_rsmoembed_image,
+        tx_rsmoembed_data,
     --div--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:tabs.appearance,
         --palette--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:palette.frames;frames,
         --palette--;LLL:EXT:frontend/Resources/Private/Language/locallang_ttc.xlf:palette.appearanceLinks;appearanceLinks,

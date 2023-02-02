@@ -9,6 +9,7 @@ use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\DataHandling\DataHandler;
+use TYPO3\CMS\Core\Messaging\AbstractMessage;
 use TYPO3\CMS\Core\Messaging\FlashMessageQueue;
 use TYPO3\CMS\Core\Messaging\FlashMessageService;
 use TYPO3\CMS\Core\Resource\ResourceFactory;
@@ -16,17 +17,19 @@ use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Messaging\FlashMessage;
 
-
 class GetOembedDataHook
 {
-
+    /**
+     * The prefix content element CType
+     */
+    private $cType = 'rsmoembed_default';
 
     /**
      * Called before saving data to database
      *
      * @param string $status
      * @param string $table
-     * @param int $id
+     * @param mixed $id
      * @param array $fieldArray
      * @param DataHandler $dataHandler
      * @throws \Exception
@@ -34,7 +37,7 @@ class GetOembedDataHook
     public function processDatamap_postProcessFieldArray(
         string      $status,
         string      $table,
-                    $id,
+        mixed       $id,
         array       &$fieldArray,
         DataHandler &$dataHandler
     ): void
@@ -58,33 +61,28 @@ class GetOembedDataHook
                     //'instagram:token' => '1234|5678', //Required to embed content from Instagram
                     //'twitter:token' => 'asdf',        //Improve the data from twitter
                 ]);
-                //$info = $embed->get('https://www.instagram.com/p/CoDZMlQMIrd/');
-
-                //$info = $embed->get('https://www.facebook.com/Ressourcenmangel/posts/pfbid036kBZ29byhKFuxZqNnDeUwmsqVefuh8wEK2eidES4ExQ6PrqyGsTM7JjdfUw2Lvw5l');
-
-                //$info = $embed->get('https://soundcloud.com/user-898723330/manuchao-kingo-of-the-bongo');
 
                 $info = $embed->get($uriSanitized);
 
                 $infoAll = [];
-                $infoAll += [
-                    'meta_oembed_title' => $info->getMetas()->get('og:title') ?? '',
-                    'meta_oembed_description' => $info->getMetas()->get('og:description') ?? '',
-                    'meta_oembed_image' => $info->getMetas()->get('og:image') ?? '',
-                    'meta_oembed_url' => $info->getMetas()->get('og:url') ?? '',
+                $infoOembed = [
+                    'meta_oembed_title' => $info->getMetas()->str('og:title') ?? '',
+                    'meta_oembed_description' => $info->getMetas()->str('og:description') ?? '',
+                    'meta_oembed_url' => $info->getMetas()->str('og:url') ?? '',
+                    'meta_oembed_image' => $info->getMetas()->str('og:image') ?? '',
                 ];
 
                 $infoAll += [
                     //The page title
-                    'info_title' => $info->title,
+                    'info_title' => $infoOembed['meta_oembed_title'] ?? $info->title,
                     //The page description
-                    'info_description' => $info->description,
+                    'info_description' => $infoOembed['meta_oembed_description'] ?? $info->description,
                     //The canonical url
-                    'info_url' => $info->url,
+                    'info_url' => $infoOembed['meta_oembed_url'] ?? $info->url,
+                    //The thumbnail or main image
+                    'info_image' => $infoOembed['meta_oembed_image'] ?? $info->image,
                     //The page keywords
                     'info_keywords' => $info->keywords,
-                    //The thumbnail or main image
-                    'info_image' => $info->image,
                     //The code to embed the image, video, etc
                     'info_code_html' => $info->code ? $info->code->html : '',
                     //The exact width of the embed code (if exists)
@@ -125,12 +123,12 @@ class GetOembedDataHook
                 $fieldArray['tx_rsmoembed_url'] = '';
                 $fieldArray['tx_rsmoembed_data'] = '';
 
-                $flashMessage = new FlashMessage(
+
+                $this->addFlashMessage(
                     'URL is not valid: ' . $uri,
                     'Use valid Url',
-                    FlashMessage::ERROR
+                    AbstractMessage::ERROR
                 );
-                $this->flashMessages($flashMessage);
             }
         }
     }
@@ -162,49 +160,37 @@ class GetOembedDataHook
                 $id = $dataHandler->substNEWwithIDs[$id];
             }
 
-            if (intval($id) > 0 ) {
+            if (intval($id) > 0) {
                 $contentElement = BackendUtility::getRecord(
                     'tt_content',
                     (int)$id
                 );
+
                 // image download agreed
-                if ((int) $contentElement['tx_rsmoembed_image_download'] === 1) {
+                if ((int)$contentElement['tx_rsmoembed_image_download'] === 1
+                    && $contentElement['CType'] === $this->cType) {
                     $return = $contentElement['tx_rsmoembed_data'];
                     $result = json_decode($return, true);
-
-                    // meta_oembed_image || info_image
-
 
                     if ((int)$contentElement['tx_rsmoembed_image'] < 1) {
                         $previewPathReturn = '';
                         if ($result['info_provider_name'] && $result['info_image']) {
                             $previewPathReturn = $this->addFileFromUri($result['info_provider_name'], $result['info_image']);
-                            $flashMessage = new FlashMessage(
+
+                            $this->addFlashMessage(
                                 'Preview generated from: ' . $result['info_image'],
                                 'New Preview Image',
-                                FlashMessage::OK
+                                AbstractMessage::OK
                             );
-                            $this->flashMessages($flashMessage);
-
-                        } elseif ($result['info_provider_name']  && $result['meta_oembed_image']) {
-                            // TODO ... oembed_provider_name + oembed_thumbnail_url
-                            $previewPathReturn = $this->addFileFromUri($result['oembed_provider_name'], $result['meta_oembed_image']);
-                            $flashMessage = new FlashMessage(
-                                'Preview generated from: ' . $result['meta_oembed_image'],
-                                'New Preview Image',
-                                FlashMessage::OK
-                            );
-                            $this->flashMessages($flashMessage);
                         } else {
-                            $flashMessage = new FlashMessage(
+
+                            $this->resetImageDownload($contentElement);
+                            $this->addFlashMessage(
                                 'No preview image url given.',
                                 'Preview Image',
-                                FlashMessage::WARNING
+                                AbstractMessage::WARNING
                             );
-                            $this->flashMessages($flashMessage);
-
                         }
-
                         if ($previewPathReturn) {
                             $resourceFactory = GeneralUtility::makeInstance(ResourceFactory::class);
                             try {
@@ -216,7 +202,7 @@ class GetOembedDataHook
                             $fileObjectUid = $fileObject->getProperty('uid');
 
                             // Assemble DataHandler data
-                            $newId = 'NEW1234';
+                            $newId = 'NEW1' . random_int(100000, 999999);
                             $data = [];
                             $data['sys_file_reference'][$newId] = [
                                 'table_local' => 'sys_file',
@@ -226,7 +212,9 @@ class GetOembedDataHook
                                 'fieldname' => 'tx_rsmoembed_image',
                                 'pid' => $contentElement['pid'],
                             ];
+
                             $data['tt_content'][$contentElement['uid']] = [
+                                'CType' => $this->cType,
                                 'tx_rsmoembed_image' => $newId,
                                 'tx_rsmoembed_image_download' => '',
                                 'pid' => $contentElement['pid'],
@@ -235,120 +223,120 @@ class GetOembedDataHook
                             $this->processData($data);
                         }
                     } elseif (
-                        (int) $fieldArray['tx_rsmoembed_image'] == 0
-                        && array_key_exists('tx_rsmoembed_url',$fieldArray)
+                        isset($fieldArray['tx_rsmoembed_image'])
+                        && (int)$fieldArray['tx_rsmoembed_image'] === 0
+                        && array_key_exists('tx_rsmoembed_url', $fieldArray)
                     ) {
-                        $data['tt_content'][$contentElement['uid']] = [
-                            'tx_rsmoembed_image_download' => '',
-                            'pid' => $contentElement['pid'],
-                        ];
-                        $this->processData($data);
-
-                        $flashMessage = new FlashMessage(
+                        $this->resetImageDownload($contentElement);
+                        $this->addFlashMessage(
                             'No new preview image assigned,
                             to automatically assign a new preview remove the existing and save again.',
                             'Check Preview Image',
-                            FlashMessage::WARNING
+                            AbstractMessage::WARNING
                         );
-                        $this->flashMessages($flashMessage);
                     } elseif (
-                        (int)$fieldArray['tx_rsmoembed_image'] == 0
-                        && !array_key_exists('tx_rsmoembed_url',$fieldArray)
+                        isset($fieldArray['tx_rsmoembed_image'])
+                        && (int)$fieldArray['tx_rsmoembed_image'] === 0
+                        && !array_key_exists('tx_rsmoembed_url', $fieldArray)
                     ) {
-                        $data['tt_content'][$contentElement['uid']] = [
-                            'tx_rsmoembed_image_download' => '',
-                            'pid' => $contentElement['pid'],
-                        ];
-                        $this->processData($data);
+                        $this->resetImageDownload($contentElement);
                     } else {
-                        $data['tt_content'][$contentElement['uid']] = [
-                            'tx_rsmoembed_image_download' => '',
-                            'pid' => $contentElement['pid'],
-                        ];
-                        $this->processData($data);
-                        $flashMessage = new FlashMessage(
+                        $this->resetImageDownload($contentElement);
+                        $this->addFlashMessage(
                             'Please check the preview image.',
-                            'Check Preview Image',
-                            FlashMessage::INFO
+                            'Check Preview Image'
                         );
-                        $this->flashMessages($flashMessage);
                     }
                 }
-
                 /// end of image assign
-
             }
-
-
         }
+    }
+
+    /**
+     * @param array $contentElement
+     */
+    private function resetImageDownload(array $contentElement): void
+    {
+        $data['tt_content'][$contentElement['uid']] = [
+            'CType' => $this->cType,
+            'tx_rsmoembed_image_download' => '',
+            'pid' => $contentElement['pid'],
+        ];
+        $this->processData($data);
     }
 
     /**
      * @param array $data
      */
-    private function processData(array $data)
+    private function processData(array $data): void
     {
-// Get an instance of the DataHandler and process the data
+        // Get an instance of the DataHandler and process the data
         /** @var DataHandler $dataHandler */
         $dataHandler = GeneralUtility::makeInstance(DataHandler::class);
         $dataHandler->start($data, []);
         $dataHandler->process_datamap();
-        // Error or success reporting
-        if (count($dataHandler->errorLog) === 0) {
-            // Handle success
-        } else {
-            // Handle errors
-        }
+//      Error or success reporting
+//        if (count($dataHandler->errorLog) === 0) {
+//            // Handle success
+//        } else {
+//            // Handle errors
+//        }
     }
-    private function addFileFromUri($provider, $thumbnail_url)
+
+    /**
+     * @param string $provider
+     * @param string $thumbnailUrl
+     * @return bool|string
+     */
+    private function addFileFromUri(string $provider, $thumbnailUrl): bool|string
     {
         // some providers deliver cruel thumbnail urls with get vars
-        $thumbnailUrlWithoutQueryParams = strtok($thumbnail_url,'?');
+        // $thumbnailUrlWithoutQueryParams = strtok($thumbnailUrl, '?');
 
         $filename = strtolower($provider)
-            . '_' . sha1($thumbnail_url);
-            //. '_' . basename($thumbnailUrlWithoutQueryParams);
+            . '_' . sha1($thumbnailUrl);
+        //. '_' . basename($thumbnailUrlWithoutQueryParams);
 
         $previewPathRelative = GeneralUtility::getFileAbsFileName('fileadmin/') . 'o_embed/' . $provider . '/';
         GeneralUtility::mkdir_deep($previewPathRelative);
         $previewPathLocal = GeneralUtility::getFileAbsFileName($previewPathRelative) . $filename;
-        if (!pathinfo($previewPathLocal,  PATHINFO_EXTENSION )) {
+        if (!pathinfo($previewPathLocal, PATHINFO_EXTENSION)) {
+            // delivers avif
+            // https://www.php.net/manual/de/function.sha1-file.php
             $previewPathLocal = $previewPathLocal . '.jpg';
         }
 
         $previewPathReturn = is_readable($previewPathLocal) ? $previewPathLocal : false;
         if (!$previewPathReturn) {
-            $previewImageString = @file_get_contents($thumbnail_url);
+            $previewImageString = @file_get_contents($thumbnailUrl);
 
             if ($previewImageString) {
                 file_put_contents($previewPathLocal, $previewImageString);
             }
 
             $previewPathReturn = is_readable($previewPathLocal) ? $previewPathLocal : false;
-
         }
         return $previewPathReturn;
     }
 
     /**
-     * @param FlashMessage $flashMessage
-     * @throws \Exception
-     * @return mixed
+     * @param string $message
+     * @param string $title
+     * @param int $severity
+     * @return void
+     * @throws \TYPO3\CMS\Core\Exception
      */
-    private function flashMessages(FlashMessage $flashMessage)
+    protected function addFlashMessage(
+        string $message,
+        string $title = '',
+        int    $severity = AbstractMessage::INFO
+    ): void
     {
-        try {
-            /** @var FlashMessageService $flashMessageService */
-            $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
-            /** @var FlashMessageQueue $defaultFlashMessageQueue */
-            $defaultFlashMessageQueue = $flashMessageService->getMessageQueueByIdentifier();
-            $defaultFlashMessageQueue->enqueue($flashMessage);
-        } catch (\Exception $e) {
-            // Top level catch to ensure useful following exception handling, because FAL throws top level exceptions.
-            // TYPO3\CMS\Core\Database\ReferenceIndex::getRelations() will check the return value of this hook with is_array()
-            // so we return false to tell getRelations() to do nothing.
-            return false;
-        }
+        $flashMessage = GeneralUtility::makeInstance(FlashMessage::class, $message, $title, $severity, true);
+        $flashMessageService = GeneralUtility::makeInstance(FlashMessageService::class);
+        $defaultFlashMessageQueue = $flashMessageService->getMessageQueueByIdentifier();
+        $defaultFlashMessageQueue->enqueue($flashMessage);
     }
 
     /**
@@ -359,48 +347,5 @@ class GetOembedDataHook
     protected function getBackendUser(): BackendUserAuthentication
     {
         return $GLOBALS['BE_USER'];
-    }
-
-    /**
-     * Simple debug logger, maybe helpful if you have trouble
-     * Why do you need this: Belly :-)  Got me.... or not
-     * It can write parallel desired log infos, while having a valid JSON response for example
-     *
-     * This function should write a human-readable file to:
-     * typo3temp/FOLDER_SEE_BELOW/timeStamp . _debug . $fileSuffix . txt
-     * @usage $this->writeDebugFile($your_content, '_some_file_suffix');
-     * @param mixed|null $content The content to debug
-     * @param string $fileSuffix The debug file suffix
-     */
-    private function writeDebugFile($content, string $fileSuffix = 'default'): void
-    {
-        $debugFolder = '/typo3temp/simplereference_debug/';
-        // Secure folder, may contain sensible data
-        if (!@is_file(Environment::getPublicPath() . $debugFolder . '.htaccess')) {
-            GeneralUtility::writeFileToTypo3tempDir(
-                Environment::getPublicPath() . $debugFolder . '.htaccess',
-                '
-# Apache < 2.3
-<IfModule !mod_authz_core.c>
-	Order allow,deny
-	Deny from all
-	Satisfy All
-</IfModule>
-
-# Apache >= 2.3
-<IfModule mod_authz_core.c>
-	Require all denied
-</IfModule>
-'
-            );
-        }
-
-        $debugFile = $debugFolder . microtime(true) . '_debug_' . $fileSuffix . '.txt';
-        if (!@is_file(Environment::getPublicPath() . $debugFile)) {
-            GeneralUtility::writeFileToTypo3tempDir(
-                Environment::getPublicPath() . $debugFile,
-                print_r($content, true)
-            );
-        }
     }
 }

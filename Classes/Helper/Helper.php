@@ -1,0 +1,44 @@
+<?php
+declare(strict_types = 1);
+namespace Ressourcenmangel\Rsmoembed\Helper;
+
+
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Fluid\View\StandaloneView;
+
+class Helper
+{
+    /**
+     * extKey
+     *
+     * @var string
+
+     */
+    protected $extKey = 'rsmoembed';
+
+    /**
+     * @param array $data
+     * @param string $template
+     * @return string
+     */
+    public function renderContent(array $data, string $template = ''): string
+    {
+        if (!$template) {
+            return 'No Template given';
+        }
+        // prepare own template
+        $fluidTemplateFile = GeneralUtility::getFileAbsFileName(
+            'EXT:' . $this->extKey . '/Resources/Private/Oembed/Templates/' . $template
+        );
+        $view = GeneralUtility::makeInstance(StandaloneView::class);
+        $view->setTemplatePathAndFilename($fluidTemplateFile);
+        $view->setPartialRootPaths(
+            ['EXT:' . $this->extKey . '/Resources/Private/Oembed/Partials/']
+        );
+        $view->assignMultiple([
+            'data' => $data,
+            'debug' => $GLOBALS['TYPO3_CONF_VARS']['BE']['debug']
+        ]);
+        return $view->render();
+    }
+}

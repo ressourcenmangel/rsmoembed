@@ -5,10 +5,9 @@ namespace Ressourcenmangel\Rsmoembed\Middleware;
 /**
  * Usage:
  * send parameters as _GET or _POST,
- * please see usage of requestMethodIsPost or requestMethodIsGet below
  * Used parameters List:
- *  api[action]       = MANDATORY: Action to do, see $allowedCommands below, too
- *  api[record]       = OPTIONAL: The record, usually an uid
+ *  tx_rsmoembed_api[action]    = MANDATORY: Action to do, see $allowedCommands below, too
+ *  tx_rsmoembed_api[uid]       = MANDATORY: The record, usually an uid
  *
  * Debug:
  *  Simple debug logger, maybe helpful if you have trouble
@@ -16,8 +15,8 @@ namespace Ressourcenmangel\Rsmoembed\Middleware;
  *  You have to delete debug files on your own.
  *
  *  This function writes a file to:
- *  typo3temp/api/time() . _debug . _some_file_suffix . txt
- * @usage: $this->writeDebugFile($WHAT_TO_DEBUG, '_initializeAndCheckFeUser');
+ *  typo3temp/debug/rsmoembed_api/time() . _debug . _some_file_suffix . txt
+ *  @usage: $this->writeDebugFile($WHAT_TO_DEBUG, '_some_file_suffix');
  *
  * */
 
@@ -26,21 +25,13 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Database\ConnectionPool;
-use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Http\Stream;
-use TYPO3\CMS\Core\Routing\PageArguments;
-use TYPO3\CMS\Core\Site\Entity\Site;
-use TYPO3\CMS\Core\TypoScript\TemplateService;
-use TYPO3\CMS\Core\Utility\DebugUtility;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\RootlineUtility;
 use TYPO3\CMS\Fluid\View\StandaloneView;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
+use Ressourcenmangel\Rsmoembed\Helper\Helper;
 
 class Api implements MiddlewareInterface
 {
@@ -104,11 +95,9 @@ class Api implements MiddlewareInterface
 
         if (is_array($this->parameters)
             && array_key_exists('action', $this->parameters)) {
-
             // command is the function to call
             // must be in the array of $allowedCommands
             $command = (string)$this->parameters['action'] ?? '';
-
 
             if ($command
                 && in_array($command, $this->allowedCommands)
@@ -116,8 +105,8 @@ class Api implements MiddlewareInterface
             ) {
                 $this->$command();
             } else {
-                $this->content = "<p>Something went wrong. Maybe action: -| $command |- does not exist or is not allowed here.</p>";
-
+                $this->content = '<p>Something went wrong. Maybe action: -| '
+                    . $command . '|- does not exist or is not allowed here.</p>';
             }
 
             $body = new Stream('php://temp', 'rw');
@@ -155,7 +144,8 @@ class Api implements MiddlewareInterface
             ->setParameters(
                 [
                     'theUid' => $this->parameters['uid'],
-                ], [
+                ],
+                [
                     \PDO::PARAM_INT,
                 ]
             )
@@ -163,7 +153,8 @@ class Api implements MiddlewareInterface
             ->fetchAssociative();
 
         if (is_array($result)) {
-            $this->content = $this->renderContent($result);
+            $helper = GeneralUtility::makeInstance(Helper::class);
+            $this->content = $helper->renderContent($result, 'Api.html');
         } else {
             $this->content = '';
         }
@@ -177,30 +168,31 @@ class Api implements MiddlewareInterface
     {
         // prepare own template
         $fluidTemplateFile = GeneralUtility::getFileAbsFileName(
-            'EXT:' . $this->extKey . '/Resources/Private/Api/Content.html'
+            'EXT:' . $this->extKey . '/Resources/Private/Oembed/Templates/Api.html'
         );
         $view = GeneralUtility::makeInstance(StandaloneView::class);
         $view->setTemplatePathAndFilename($fluidTemplateFile);
+        $view->setPartialRootPaths(
+            ['EXT:' . $this->extKey . '/Resources/Private/Oembed/Partials/']
+        );
         $view->assignMultiple([
             'data' => $data,
-            'oembedData' => json_decode($data['tx_rsmoembed_data'], true),
         ]);
 
         return $view->render();
     }
 
-
     /**
      * Simple debug logger, maybe helpful if you have trouble
      * This function writes a file to:
-     * typo3temp/api/time() . _debug . _some_file_suffix . txt
+     * typo3temp/debug/rsmoembed_api/time() . _debug . _some_file_suffix . txt
      * @usage $this->writeDebugFile($your_content, '_some_file_suffix');
      * @param mixed|null $content The content to debug
      * @param string $fileSuffix The debug file suffix
      */
     private function writeDebugFile($content, string $fileSuffix = '1'): void
     {
-        $debugFile = 'typo3temp/assets/sitedefault_api_debug/' . time() . '_debug_' . $fileSuffix . '.txt';
+        $debugFile = 'typo3temp/debug/rsmoembed_api/' . time() . '_debug_' . $fileSuffix . '.txt';
         if (!@is_file(Environment::getPublicPath() . '/' . $debugFile)) {
             GeneralUtility::writeFileToTypo3tempDir(
                 Environment::getPublicPath() . '/' . $debugFile,

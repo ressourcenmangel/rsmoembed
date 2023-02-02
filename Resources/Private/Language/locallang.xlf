@@ -19,6 +19,66 @@
 			<trans-unit id="tt_content.tx_rsmoembed_image" resname="tt_content.tx_rsmoembed_image">
 				<source>Image</source>
 			</trans-unit>
+			<trans-unit id="info_title" resname="info_title">
+				<source>Title</source>
+			</trans-unit>
+			<trans-unit id="info_description" resname="info_description">
+				<source>Description</source>
+			</trans-unit>
+			<trans-unit id="info_url" resname="info_url">
+				<source>Url</source>
+			</trans-unit>
+			<trans-unit id="info_keywords" resname="info_keywords">
+				<source>Keywords</source>
+			</trans-unit>
+			<trans-unit id="info_image" resname="info_image">
+				<source>Image</source>
+			</trans-unit>
+			<trans-unit id="info_code_width" resname="info_code_width">
+				<source>Code Width</source>
+			</trans-unit>
+			<trans-unit id="info_code_height" resname="info_code_height">
+				<source>Code Height</source>
+			</trans-unit>
+			<trans-unit id="info_code_ratio" resname="info_code_ratio">
+				<source>Code Ratio</source>
+			</trans-unit>
+			<trans-unit id="info_author_name" resname="info_author_name">
+				<source>Author Name</source>
+			</trans-unit>
+			<trans-unit id="info_author_url" resname="info_author_url">
+				<source>Author Url</source>
+			</trans-unit>
+			<trans-unit id="info_cms" resname="info_cms">
+				<source>Cms</source>
+			</trans-unit>
+			<trans-unit id="info_language" resname="info_language">
+				<source>Language</source>
+			</trans-unit>
+			<trans-unit id="info_languages" resname="info_languages">
+				<source>Languages</source>
+			</trans-unit>
+			<trans-unit id="info_provider_name" resname="info_provider_name">
+				<source>Provider Name</source>
+			</trans-unit>
+			<trans-unit id="info_provider_url" resname="info_provider_url">
+				<source>Provider Url</source>
+			</trans-unit>
+			<trans-unit id="info_icon" resname="info_icon">
+				<source>Icon</source>
+			</trans-unit>
+			<trans-unit id="info_favicon" resname="info_favicon">
+				<source>Favicon</source>
+			</trans-unit>
+			<trans-unit id="info_published_time" resname="info_published_time">
+				<source>Published Time</source>
+			</trans-unit>
+			<trans-unit id="info_license" resname="info_license">
+				<source>License</source>
+			</trans-unit>
+			<trans-unit id="info_feeds" resname="info_feeds">
+				<source>Feeds</source>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>

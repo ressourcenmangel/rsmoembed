@@ -13,6 +13,9 @@
 			<trans-unit id="description">
 				<target>Ein Inhaltselement zum einfügen externer Dienste.</target>
 			</trans-unit>
+			<trans-unit id="tabs.oembed">
+				<target>OEmbed</target>
+			</trans-unit>
 		</body>
 	</file>
 </xliff>
