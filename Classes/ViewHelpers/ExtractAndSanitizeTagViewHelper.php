@@ -1,6 +1,9 @@
 <?php
+
 namespace Ressourcenmangel\Rsmoembed\ViewHelpers;
 
+use Ressourcenmangel\Rsmoembed\Helper\Helper;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3Fluid\Fluid\Core\Rendering\RenderingContextInterface;
 use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithContentArgumentAndRenderStatic;
@@ -9,7 +12,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\Traits\CompileWithContentArgumentAndRenderS
  * JsonToObjectViewHelper
  *
  */
-class JsonToObjectViewHelper extends AbstractViewHelper
+class ExtractAndSanitizeTagViewHelper extends AbstractViewHelper
 {
     use CompileWithContentArgumentAndRenderStatic;
 
@@ -31,18 +34,28 @@ class JsonToObjectViewHelper extends AbstractViewHelper
         $this->registerArgument(
             'value',
             'string',
-            'The incoming data to convert, or null if VH children should be used'
+            'The incoming html convert, or null if VH children should be used'
+        );
+        $this->registerArgument(
+            'tag',
+            'string',
+            'The tag to keep, only the first found tag is kept'
+        );
+        $this->registerArgument(
+            'attributes',
+            'array',
+            'The attributed to keep'
         );
     }
 
     /**
-     * Applies json_decode() on the specified value.
+     * Applies a sanitize on the specified value.
      *
      * @param array $arguments
      * @param \Closure $renderChildrenClosure
      * @param RenderingContextInterface $renderingContext
-     * @see https://www.php.net/manual/function.json-decode.php
      * @return object
+     * @see https://www.php.net/manual/function.json-decode.php
      */
     public static function renderStatic(
         array                     $arguments,
@@ -51,6 +64,12 @@ class JsonToObjectViewHelper extends AbstractViewHelper
     )
     {
         $value = $renderChildrenClosure();
-        return json_decode($value, true);
+
+        $helper = GeneralUtility::makeInstance(Helper::class);
+
+        if ($value) {
+            $value = $helper->extractAndSanitzeIframe($value);
+        }
+        return $value;
     }
 }

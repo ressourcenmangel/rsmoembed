@@ -4,6 +4,7 @@ namespace Ressourcenmangel\Rsmoembed\Hooks;
 
 
 use Embed\Embed;
+use Ressourcenmangel\Rsmoembed\Helper\Helper;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
 use TYPO3\CMS\Core\Core\Environment;
@@ -72,6 +73,11 @@ class GetOembedDataHook
                     'meta_oembed_image' => $info->getMetas()->str('og:image') ?? '',
                 ];
 
+                $helper = GeneralUtility::makeInstance(Helper::class);
+                $iFrameCode = $info->code ? $info->code->html : '';
+                if ($iFrameCode) {
+                    $iFrameCode = $helper->extractAndSanitzeIframe($iFrameCode);
+                }
                 $infoAll += [
                     //The page title
                     'info_title' => $infoOembed['meta_oembed_title'] ?? $info->title,
@@ -84,7 +90,7 @@ class GetOembedDataHook
                     //The page keywords
                     'info_keywords' => $info->keywords,
                     //The code to embed the image, video, etc
-                    'info_code_html' => $info->code ? $info->code->html : '',
+                    'info_code_html' => $iFrameCode,
                     //The exact width of the embed code (if exists)
                     'info_code_width' => $info->code ? $info->code->width : '',
                     //The exact height of the embed code (if exists)
@@ -138,17 +144,17 @@ class GetOembedDataHook
      *
      * @param string $status
      * @param string $table
-     * @param string $id
+     * @param mixed $id
      * @param array $fieldArray
      * @param DataHandler $dataHandler
-     * @return mixed
+     * @return void
      * @throws \Exception
      *
      */
     public function processDatamap_afterDatabaseOperations(
         string      $status,
         string      $table,
-                    $id,
+        mixed       $id,
         array       $fieldArray,
         DataHandler $dataHandler
     ): void
@@ -265,6 +271,7 @@ class GetOembedDataHook
         ];
         $this->processData($data);
     }
+
 
     /**
      * @param array $data

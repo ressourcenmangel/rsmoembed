@@ -7,7 +7,7 @@
 	</f:comment>
 	<f:if condition="{oembedData.info_code_html}">
 		<f:then>
-			{oembedData.info_code_html->f:format.raw()}
+			{oembedData.info_code_html->rsm:extractAndSanitizeTag()->f:format.stripTags(allowedTags:'<iframe>')->f:format.raw()}
 		</f:then>
 		<f:else>
 			<f:switch expression="{oembedData.info_provider_name}">

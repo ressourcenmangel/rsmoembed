@@ -41,4 +41,44 @@ class Helper
         ]);
         return $view->render();
     }
+
+    /**
+     * @param string $html
+     * @param string $tag
+     * @param array|null $allowedAttribs
+     * @return string
+     */
+    public function extractAndSanitzeIframe (string $html, string $tag = 'iframe', array $allowedAttribs = null) {
+        $allowedAttribs = $allowedAttribs ?? [
+            'src',
+            'width',
+            'height',
+            'title',
+            'allow',
+            'name',
+            'referrerpolicy',
+            'sandbox',
+            'scrolling',
+            'frameborder',
+        ];
+
+        $htmlSanitized = '';
+        $result = [];
+
+        $dom = new \DOMDocument;
+        $dom->loadHTML($html);
+        $xpath = new \DOMXPath($dom);
+        $nodes = $xpath->query('//' . $tag . '//@*');
+
+        foreach ($nodes as $node) {
+            if (in_array($node->nodeName, $allowedAttribs)) {
+                $result[] = $node->nodeName .'="'. htmlspecialchars($node->nodeValue) . '"';
+            }
+        }
+
+        if (count($result)) {
+            $htmlSanitized = '<iframe ' . implode(' ', $result) . '></iframe>';
+        }
+        return $htmlSanitized;
+    }
 }

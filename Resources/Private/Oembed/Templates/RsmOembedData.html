@@ -2,6 +2,8 @@
 	  xmlns:rsm="http://typo3.org/ns/Ressourcenmangel/Rsmoembed/ViewHelpers"
 	  xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers">
 <f:variable name="oembedData">{rsm:jsonToObject(value: data.tx_rsmoembed_data)}</f:variable>
+
+
 <f:if condition="{data.tx_rsmoembed_url}">
 	<f:then>
 		<div class="row">
@@ -12,41 +14,43 @@
 		<div class="row">
 			<div class="col">
 				<table class="small">
-					<f:alias map="{infos: {
-					info_provider_name : oembedData.info_provider_name,
-					info_provider_url : oembedData.info_provider_url,
-					info_title : oembedData.info_title,
-					info_description : oembedData.info_description,
-					info_url : oembedData.info_url,
-					info_keywords : '{f:if(condition: i.isLast, then: x, else: \'{x}, \') -> f:for(each:oembedData.info_keywords, as: \'x\', iteration: \'i\')}',
-					info_image : oembedData.info_image,
-					info_code_width : oembedData.info_code_width,
-					info_code_height : oembedData.info_code_height,
-					info_code_ratio : oembedData.info_code_ratio,
-					info_author_name : oembedData.info_author_name,
-					info_author_url : oembedData.info_author_url,
-					info_cms : oembedData.info_cms,
-					info_language : oembedData.info_language,
-					info_languages : '{f:if(condition: i.isLast, then: x, else: \'{x}, \') -> f:for(each:oembedData.info_languages, as: \'x\', iteration: \'i\')}',
-					info_icon : oembedData.info_icon,
-					info_favicon : oembedData.info_favicon,
-					info_published_time: '{f:if(condition: oembedData.info_published_time.date, then: oembedData.info_published_time.date)}',
-					info_license : oembedData.info_license,
-					info_feeds : '{f:if(condition: i.isLast, then: x, else: \'{x}, \') -> f:for(each:oembedData.info_feeds, as: \'x\', iteration: \'i\')}'
-				}}">
-						<f:for each="{infos}" as="info" key="key">
-							<tr>
-								<td style="padding: 0 10px 5px 0">
-									<f:translate key="{key}" extensionName="rsmoembed" default="{key}"/>
-								</td>
-								<td style="padding: 0 0 5px 0">
-									{info->f:format.stripTags(allowedTags:'<p><a>')
-									->f:format.crop(maxCharacters: 150)
-									->f:format.html()}
-								</td>
-							</tr>
-						</f:for>
-					</f:alias>
+					<f:sanitize.html>
+						<f:alias map="{infos: {
+							info_provider_name : oembedData.info_provider_name,
+							info_provider_url : oembedData.info_provider_url,
+							info_title : oembedData.info_title,
+							info_description : oembedData.info_description,
+							info_url : oembedData.info_url,
+							info_keywords : '{f:if(condition: i.isLast, then: x, else: \'{x}, \') -> f:for(each:oembedData.info_keywords, as: \'x\', iteration: \'i\')}',
+							info_image : oembedData.info_image,
+							info_code_width : oembedData.info_code_width,
+							info_code_height : oembedData.info_code_height,
+							info_code_ratio : oembedData.info_code_ratio,
+							info_author_name : oembedData.info_author_name,
+							info_author_url : oembedData.info_author_url,
+							info_cms : oembedData.info_cms,
+							info_language : oembedData.info_language,
+							info_languages : '{f:if(condition: i.isLast, then: x, else: \'{x}, \') -> f:for(each:oembedData.info_languages, as: \'x\', iteration: \'i\')}',
+							info_icon : oembedData.info_icon,
+							info_favicon : oembedData.info_favicon,
+							info_published_time: '{f:if(condition: oembedData.info_published_time.date, then: oembedData.info_published_time.date)}',
+							info_license : oembedData.info_license,
+							info_feeds : '{f:if(condition: i.isLast, then: x, else: \'{x}, \') -> f:for(each:oembedData.info_feeds, as: \'x\', iteration: \'i\')}'
+						}}">
+							<f:for each="{infos}" as="info" key="key">
+								<tr>
+									<td style="padding: 0 10px 5px 0">
+										<f:translate key="{key}" extensionName="rsmoembed" default="{key}"/>
+									</td>
+									<td style="padding: 0 0 5px 0">
+										{info->f:format.stripTags(allowedTags:'<p><a>')
+										->f:format.crop(maxCharacters: 150)
+										->f:format.html()}
+									</td>
+								</tr>
+							</f:for>
+						</f:alias>
+					</f:sanitize.html>
 				</table>
 			</div>
 		</div>
@@ -55,6 +59,5 @@
 
 	</f:else>
 </f:if>
-
 
 </html>
